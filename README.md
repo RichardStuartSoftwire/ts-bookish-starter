@@ -13,3 +13,12 @@ This repo contains a starter Express server for use in the Bookish bootcamp exer
      - Run in development mode with hot reloading with `npm run dev`
      - Run without hot reloading using `npm start`
      - You can check that the formatting of all files is acceptable using `npm run lint`
+
+## You now need .env too
+It will NOT be tracked in the repository and it should contain:
+```
+DB_SERVER=localhost  
+DB_NAME=database
+DB_USER=username
+DB_PASSWORD=password
+```
