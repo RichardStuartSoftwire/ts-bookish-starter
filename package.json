@@ -25,9 +25,10 @@
   },
   "dependencies": {
     "dotenv": "^16.0.0",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "tedious": "^20.0.0"
   },
   "engines": {
-    "node": "16.x"
+    "node": "25.x"
   }
 }
