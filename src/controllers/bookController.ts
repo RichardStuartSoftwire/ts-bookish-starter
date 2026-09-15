@@ -1,5 +1,11 @@
 import { Router, Request, Response } from 'express';
-import getAllBooks, { getSingleBook } from '../db/bookQueries';
+import getAllBooks, {
+    getSingleBook,
+    findAuthorByName,
+    createAuthor,
+    createBook as createBookQuery,
+    linkBookAuthor,
+} from '../db/bookQueries';
 
 class BookController {
     router: Router;
@@ -44,12 +50,36 @@ class BookController {
         }
     }
 
-    createBook(req: Request, res: Response) {
-        // TODO: implement functionality
-        return res.status(500).json({
-            error: 'server_error',
-            error_description: 'Endpoint not implemented yet.',
-        });
+    async createBook(req: Request, res: Response) {
+        const { title, isbn, author } = req.body;
+        const totalCopies = Number(req.body.totalCopies);
+
+        if (!title || !isbn || !author || Number.isNaN(totalCopies)) {
+            return res.status(400).json({
+                error: 'invalid_request',
+                error_description:
+                    'title, isbn, totalCopies, and author are required.',
+            });
+        }
+
+        try {
+            let authorId = await findAuthorByName(author);
+            if (!authorId) {
+                authorId = await createAuthor(author);
+            }
+
+            const bookId = await createBookQuery({ title, isbn, totalCopies });
+            await linkBookAuthor(bookId, authorId);
+
+            const book = await getSingleBook(bookId);
+            res.status(201).json(book);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({
+                error: 'server_error',
+                error_description: 'Failed to create book.',
+            });
+        }
     }
 }
 

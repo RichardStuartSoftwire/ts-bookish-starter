@@ -77,3 +77,119 @@ export function getSingleBook(bookId: number): Promise<Book | undefined> {
         }, reject);
     });
 }
+
+export function findAuthorByName(name: string): Promise<number | undefined> {
+    return new Promise((resolve, reject) => {
+        createConnection().then((connection) => {
+            let authorId: number | undefined;
+
+            const request = new Request(
+                'SELECT AuthorId FROM Author WHERE Name = @name',
+                (err) => {
+                    connection.close();
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(authorId);
+                    }
+                },
+            );
+
+            request.addParameter('name', TYPES.NVarChar, name);
+
+            request.on('row', (columns) => {
+                authorId = columns[0].value;
+            });
+
+            connection.execSql(request);
+        }, reject);
+    });
+}
+
+export function createAuthor(name: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+        createConnection().then((connection) => {
+            let authorId: number;
+
+            const request = new Request(
+                'INSERT INTO Author (Name) OUTPUT INSERTED.AuthorId VALUES (@name)',
+                (err) => {
+                    connection.close();
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(authorId);
+                    }
+                },
+            );
+
+            request.addParameter('name', TYPES.NVarChar, name);
+
+            request.on('row', (columns) => {
+                authorId = columns[0].value;
+            });
+
+            connection.execSql(request);
+        }, reject);
+    });
+}
+
+export function createBook(book: {
+    title: string;
+    isbn: string;
+    totalCopies: number;
+}): Promise<number> {
+    return new Promise((resolve, reject) => {
+        createConnection().then((connection) => {
+            let bookId: number;
+
+            const request = new Request(
+                'INSERT INTO Book (Title, ISBN, TotalCopies) OUTPUT INSERTED.BookId VALUES (@title, @isbn, @totalCopies)',
+                (err) => {
+                    connection.close();
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(bookId);
+                    }
+                },
+            );
+
+            request.addParameter('title', TYPES.NVarChar, book.title);
+            request.addParameter('isbn', TYPES.NVarChar, book.isbn);
+            request.addParameter('totalCopies', TYPES.Int, book.totalCopies);
+
+            request.on('row', (columns) => {
+                bookId = columns[0].value;
+            });
+
+            connection.execSql(request);
+        }, reject);
+    });
+}
+
+export function linkBookAuthor(
+    bookId: number,
+    authorId: number,
+): Promise<void> {
+    return new Promise((resolve, reject) => {
+        createConnection().then((connection) => {
+            const request = new Request(
+                'INSERT INTO Book_Author (BookId, AuthorId) VALUES (@bookId, @authorId)',
+                (err) => {
+                    connection.close();
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                },
+            );
+
+            request.addParameter('bookId', TYPES.Int, bookId);
+            request.addParameter('authorId', TYPES.Int, authorId);
+
+            connection.execSql(request);
+        }, reject);
+    });
+}
