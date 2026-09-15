@@ -3,7 +3,7 @@ USE bookish;
 CREATE TABLE Book (
 	BookId INT IDENTITY(1, 1) PRIMARY KEY,
 	Title NVARCHAR(500) NOT NULL,
-	ISBN VARCHAR(20) NOT NULL UNIQUE,
+	ISBN NVARCHAR(13) NOT NULL UNIQUE,
 	TotalCopies INT NOT NULL CHECK (TotalCopies >= 0)
 );
 
@@ -55,7 +55,6 @@ CREATE TABLE AccessToken (
 	CustomerId INT NOT NULL,
 	Token NVARCHAR(1000) NOT NULL,
 	CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
-	ExpiresAt DATETIME2 NOT NULL,
 
 	CONSTRAINT FK_AccessToken_Customer
 		FOREIGN KEY (CustomerId)
@@ -64,5 +63,3 @@ CREATE TABLE AccessToken (
 
 CREATE INDEX IX_Book_Title ON Book(Title);
 CREATE INDEX IX_Author_Name ON Author(Name);
-CREATE INDEX IX_Loan_CustomerId ON Loan(CustomerId);
-CREATE INDEX IX_Loan_BookId ON Loan(BookId);
